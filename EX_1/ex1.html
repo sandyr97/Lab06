@@ -21,7 +21,7 @@ integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw
   <a class="btn btn-primary btn-lg" href="#" role="button">Learn more</a>
 </div>
 Chose ther number of stops you want to display:
-<input v-model.number="numberOfStops" type="number">
+<input v-model.number="numberOfStops" type="number" name="numberOfStops">
 
 
 
@@ -33,14 +33,14 @@ Chose ther number of stops you want to display:
   </ol>
 </div>
 
-<div class="card" style="width: 18rem;">
-  <div class="card-body">
-    <h5 class="card-title">Card title</h5>
-    <h6 class="card-subtitle mb-2 text-muted">Card subtitle</h6>
-    <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-    <a href="#" class="card-link">Card link</a>
-    <a href="#" class="card-link">Another link</a>
-  </div>
+<div v-for="item in filteredStops">
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title">{{item.name}}</h5>
+        <p class="card-text">{{item.description}}
+        </p>
+      </div>
+    </div>
 </div>
 
    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
@@ -62,15 +62,34 @@ Chose ther number of stops you want to display:
 var app1 = new Vue({
   el: '#app1',
   data: {
-    stops: []
-    numStops: 10
+    stops: [],
+    numStops: 10,
+    longitude: 0,
+    latitude: 0,
+    distance: 999999
   },
   computed: {
   filteredStops: function(){
-    return this.stops(this.numStops);
+    return (this.stops.slice(0, this.numStops))
   }
 }
 })
+
+//obtained from https://developer.mozilla.org/en-US/docs/Web/API/Geolocation_API
+function geo_success(position) {
+  this.latitude=position.coords.latitude;
+  this.longitude=position.coords.longitude;
+}
+
+function geo_error() {
+  alert("Sorry, no position available.");
+}
+
+var geo_options = {
+  enableHighAccuracy: true,
+  maximumAge        : 30000,
+  timeout           : 27000
+};
 
 fetch('https://utils.pauliankline.com/stops.json')
   .then(function(response) {
