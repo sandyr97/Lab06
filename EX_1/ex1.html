@@ -20,26 +20,28 @@ integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw
   <p>It uses utility classes for typography and spacing to space content out within the larger container.</p>
   <a class="btn btn-primary btn-lg" href="#" role="button">Learn more</a>
 </div>
+Chose ther number of stops you want to display:
+<input v-model.number="numberOfStops" type="number">
 
-<div class="container">
-<div id="app">
-  Message: {{ message }}
-</div>
-</div>
 
-<div id="app-4">
+
+<div id="app1">
   <ol>
-    <li v-for="todo in todos">
-      {{ todo.text }}
+    <li v-for="stop in stops" :key="stop.id">
+        {{ stop }}
     </li>
   </ol>
 </div>
 
-<ul id="v-for-object" class="demo">
-  <li v-for="value in object">
-    {{ value }}
-  </li>
-</ul>
+<div class="card" style="width: 18rem;">
+  <div class="card-body">
+    <h5 class="card-title">Card title</h5>
+    <h6 class="card-subtitle mb-2 text-muted">Card subtitle</h6>
+    <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+    <a href="#" class="card-link">Card link</a>
+    <a href="#" class="card-link">Another link</a>
+  </div>
+</div>
 
    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
    <script
@@ -56,32 +58,28 @@ integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw
    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
 
 <script>
-const app = new Vue({
-el: '#app',
-data: {
-  message: 'Hello Vue!'
+
+var app1 = new Vue({
+  el: '#app1',
+  data: {
+    stops: []
+    numStops: 10
+  },
+  computed: {
+  filteredStops: function(){
+    return this.stops(this.numStops);
+  }
 }
 })
-var app4 = new Vue({
-  el: '#app-4',
-  data: {
-    todos: [
-      { text: 'Learn JavaScript' },
-      { text: 'Learn Vue' },
-      { text: 'Build something awesome' }
-    ]
-  }
-})
-new Vue({
-  el: '#v-for-object',
-  data: {
-    object: {
-      firstName: 'John',
-      lastName: 'Doe',
-      age: 30
-    }
-  }
-})
+
+fetch('https://utils.pauliankline.com/stops.json')
+  .then(function(response) {
+    return response.json();
+  })
+  .then(function(myJson) {
+    console.log(JSON.stringify(myJson));
+  });
+
 </script>
  </body>
 </html>
