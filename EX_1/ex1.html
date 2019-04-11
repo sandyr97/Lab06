@@ -10,38 +10,6 @@
 integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
      crossorigin="anonymous"
    />
- </head>
- <body>
-
-   <div class="jumbotron">
-  <h1 class="display-4">Hello, world!</h1>
-  <p class="lead">This is a simple hero unit, a simple jumbotron-style component for calling extra attention to featured content or information.</p>
-  <hr class="my-4">
-  <p>It uses utility classes for typography and spacing to space content out within the larger container.</p>
-  <a class="btn btn-primary btn-lg" href="#" role="button">Learn more</a>
-</div>
-Chose ther number of stops you want to display:
-<input v-model.number="numberOfStops" type="number" name="numberOfStops">
-
-
-
-<div id="app1">
-  <ol>
-    <li v-for="stop in stops" :key="stop.id">
-        {{ stop }}
-    </li>
-  </ol>
-</div>
-
-<div v-for="item in filteredStops">
-    <div class="card">
-      <div class="card-body">
-        <h5 class="card-title">{{item.name}}</h5>
-        <p class="card-text">{{item.description}}
-        </p>
-      </div>
-    </div>
-</div>
 
    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
    <script
@@ -57,7 +25,55 @@ Chose ther number of stops you want to display:
 
    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
 
+ </head>
+ <body>
+
+<div class="jumbotron">
+      <h1 class="display-4">Bus Stops Near You!</h1>
+      <p class="lead">An online resource that shows your nearby bus stops</p>
+      <hr class="my-4">
+      <div id="app1">
+          <form>
+            Chose ther number of stops you want to display: <input v-model.number="numberOfStops" type="number" name="numberOfStops">
+              <br>
+              <br>
+          </form>
+          <div v-for="item in filteredStops">
+              <div class="card">
+                <div class="card-body">
+                  <h5 class="card-title">{{item.name}}</h5>
+                  <p class="card-text">{{item.description}}
+                    <br> Distance: {{item.distance}}
+                  </p>
+                </div>
+              </div>
+          </div>
+      </div>
+  </div>
+
+>
+
+
 <script>
+
+function toRad(number)
+     {
+         return (number * Math.PI / 180);
+     }
+     function getDistance(lat1, lat2, lon1, lon2)
+     {
+         //Website given by Megana Chinalachaiagari to reference for geolocation: https://stackoverflow.com/questions/13840516/how-to-find-my-distance-to-a-known-location-in-javascript
+         //slight modifications in function parameter list and to convert degree diretly to radians
+         let R = 6371; // Radius of the earth in km
+         let dLat = toRad(Math.abs(lat1 - lat2));  // Javascript functions in radians
+         let dLon = toRad(Math.abs(lon1 - lon2));
+         let a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+             Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
+             Math.sin(dLon / 2) * Math.sin(dLon / 2);
+         let c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+         let d = R * c; // Distance in km
+         return d;
+     }
 
 var app1 = new Vue({
   el: '#app1',
@@ -70,15 +86,24 @@ var app1 = new Vue({
   },
   computed: {
   filteredStops: function(){
+    this.stops.sort(function (a, b) { return a.distance - b.distance });
     return (this.stops.slice(0, this.numStops))
   }
 }
-})
+calcDistance: function()
+{
+  for (let i = 0; i < this.stops.length; i++)
+    {
+      this.stops[i].distance = getDistance(this.latitude, this.stops[i].lat, this.longitude, this.stops[i].lon);
+    }
+}
 
 //obtained from https://developer.mozilla.org/en-US/docs/Web/API/Geolocation_API
 function geo_success(position) {
   this.latitude=position.coords.latitude;
   this.longitude=position.coords.longitude;
+  this.calcDistance();
+
 }
 
 function geo_error() {
@@ -98,7 +123,7 @@ fetch('https://utils.pauliankline.com/stops.json')
   .then(function(myJson) {
     console.log(JSON.stringify(myJson));
   });
-
+})
 </script>
  </body>
 </html>
