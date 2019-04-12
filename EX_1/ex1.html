@@ -26,104 +26,121 @@ integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw
    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
 
  </head>
- <body>
+ <body style="background-color:#e0e2e4">
 
-<div class="jumbotron">
-      <h1 class="display-4">Bus Stops Near You!</h1>
-      <p class="lead">An online resource that shows your nearby bus stops</p>
-      <hr class="my-4">
-      <div id="app1">
-          <form>
-            Chose ther number of stops you want to display: <input v-model.number="numberOfStops" type="number" name="numberOfStops">
-              <br>
-              <br>
-          </form>
-          <div v-for="item in filteredStops">
-              <div class="card">
-                <div class="card-body">
-                  <h5 class="card-title">{{item.name}}</h5>
-                  <p class="card-text">{{item.description}}
-                    <br> Distance: {{item.distance}}
-                  </p>
+  <div class="jumbotron" style="background-color:#e0e2e4">
+        <h1 class="display-4" style="color:royalblue">Bus Stops Near You!</h1>
+        <p class="lead" style="color:crimson">Shows the 10 closest Lawrence bus stops to your current location.</p>
+        <hr class="my-4">
+        <div id="app1">
+            <form style="color: black">
+              Chose the number of stops you would like to display:
+              <input v-model.number="numStops" type="number" name="numberOfStops" max="10" min="0" >
+                <br>
+                <br>
+            </form>
+            <div v-for="item in filteredStops" v-bind:busstop="item" v-bind:key="item.id">
+                <div class="card" style="width: 30rem; color:crimson; background-color:#b7d7e8;">
+                  <div class="card-body">
+                    <h5 class="card-title">{{item.name}}</h5>
+                    <p class="card-text" style="color: royalblue">{{item.description}}
+                      <br> Distance: {{item.distance.toPrecision(3)}} miles
+                    </p>
+                  </div>
                 </div>
-              </div>
-          </div>
-      </div>
-  </div>
+            </div>
+        </div>
+    </div>
 
->
+  >
 
 
-<script>
+  <script>
 
-function toRad(number)
-     {
-         return (number * Math.PI / 180);
-     }
-     function getDistance(lat1, lat2, lon1, lon2)
-     {
-         //Website given by Megana Chinalachaiagari to reference for geolocation: https://stackoverflow.com/questions/13840516/how-to-find-my-distance-to-a-known-location-in-javascript
-         //slight modifications in function parameter list and to convert degree diretly to radians
-         let R = 6371; // Radius of the earth in km
-         let dLat = toRad(Math.abs(lat1 - lat2));  // Javascript functions in radians
-         let dLon = toRad(Math.abs(lon1 - lon2));
-         let a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-             Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
-             Math.sin(dLon / 2) * Math.sin(dLon / 2);
-         let c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-         let d = R * c; // Distance in km
-         return d;
-     }
+  function toRad(number)
+       {
+           return (number * Math.PI / 180);
+       }
+       function getDistance(lat1, lat2, lon1, lon2)
+       {
+           //Website given by Megana Chinalachaiagari to reference for geolocation: https://stackoverflow.com/questions/13840516/how-to-find-my-distance-to-a-known-location-in-javascript
+           //slight modifications in function parameter list and to convert degree diretly to radians
+           let R = 6371; // Radius of the earth in km
+           let dLat = toRad(Math.abs(lat1 - lat2));  // Javascript functions in radians
+           let dLon = toRad(Math.abs(lon1 - lon2));
+           let a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+               Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
+               Math.sin(dLon / 2) * Math.sin(dLon / 2);
+           let c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+           let d = R * c; // Distance in km
+           let miles=d*0.621371;//converted to miles
+           return miles;
+       }
 
-var app1 = new Vue({
-  el: '#app1',
-  data: {
-    stops: [],
-    numStops: 10,
-    longitude: 0,
-    latitude: 0,
-    distance: 999999
-  },
-  computed: {
-  filteredStops: function(){
-    this.stops.sort(function (a, b) { return a.distance - b.distance });
-    return (this.stops.slice(0, this.numStops))
-  }
-}
-calcDistance: function()
-{
-  for (let i = 0; i < this.stops.length; i++)
-    {
-      this.stops[i].distance = getDistance(this.latitude, this.stops[i].lat, this.longitude, this.stops[i].lon);
-    }
-}
-
-//obtained from https://developer.mozilla.org/en-US/docs/Web/API/Geolocation_API
-function geo_success(position) {
-  this.latitude=position.coords.latitude;
-  this.longitude=position.coords.longitude;
-  this.calcDistance();
-
-}
-
-function geo_error() {
-  alert("Sorry, no position available.");
-}
-
-var geo_options = {
-  enableHighAccuracy: true,
-  maximumAge        : 30000,
-  timeout           : 27000
-};
-
-fetch('https://utils.pauliankline.com/stops.json')
-  .then(function(response) {
-    return response.json();
+  const app1 = new Vue({
+    el: '#app1',
+    data: {
+      stops: [],
+      numStops: 10,
+      longitude: 0,
+      latitude: 0,
+      distance: 999999
+    },
+    computed: {
+    filteredStops: function(){
+      this.stops.sort(function (a, b) { return a.distance - b.distance });
+      return (this.stops.slice(0, this.numStops))
+      }
+    },
+    methods:
+      {
+        computeDistance: function ()
+        {
+            for (let i = 0; i < this.stops.length; i++)
+            {
+                this.stops[i].distance = getDistance(this.latitude, this.stops[i].lat, this.longitude, this.stops[i].lon);
+            }
+        }
+      },
+        created: function ()
+        {
+              fetch('https://utils.pauliankline.com/stops.json')
+                  .then(function (response)
+                  {
+                      return response.json();
+                  })
+                  .then(function(myJson) {
+                    let js = JSON.stringify(myJson);
+                    app1.stops = JSON.parse(js);
+                 });
+              //code from (as provided in google doc guidelines): https://developer.mozilla.org/en-US/docs/Web/API/Geolocation_API
+              if ("geolocation" in navigator)
+              {
+                  function geo_success(position)
+                  {
+                      this.latitude = position.coords.latitude
+                      this.longitude = position.coords.longitude;
+                      console.log("(Latitude, Longitude): (" + this.latitude + ", " + this.longitude + ")");
+                      this.computeDistance();
+                  }
+                  function geo_error()
+                  {
+                      alert("Could not find your location. Please, try again!");
+                  }
+                  var geo_options =
+                  {
+                      enableHighAccuracy: true,
+                      maximumAge: 30000,
+                      timeout: 27000
+                  };
+                  navigator.geolocation.watchPosition(geo_success.bind(this), geo_error, geo_options);
+              }
+              else
+              {
+                  console.log("Could not find your location. Please, allow permission to use location!");
+              }
+          }
   })
-  .then(function(myJson) {
-    console.log(JSON.stringify(myJson));
-  });
-})
-</script>
+  </script>
  </body>
 </html>
